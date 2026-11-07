@@ -9,7 +9,7 @@
 ## 🚀 Schnellstart
 
 ```bash
-git clone <REPO-URL>
+git clone https://github.com/Valyrian-Sol/dvorakquest.git
 cd dvorakquest
 ./start.sh
 ```
