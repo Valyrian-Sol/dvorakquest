@@ -1,0 +1,12 @@
+# Lokaler Spielfortschritt (wird beim Spielen automatisch angelegt)
+data/
+
+# Python-Bytecode & Cache
+__pycache__/
+*.py[cod]
+
+# Betriebssystem- & Editor-Dateien
+.DS_Store
+Thumbs.db
+*.swp
+*~

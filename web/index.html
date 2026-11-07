@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DvorakQuest — Spielend Deutsch-Dvorak meistern</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <!-- TOP HEADER -->
+  <header class="dq-header">
+    <div class="dq-brand">
+      <span class="dq-logo-icon">🦅</span>
+      <div>
+        <div class="dq-logo-title">DvorakQuest</div>
+        <div class="dq-rank-label" id="rank-label">Rang: Grundreihen-Novize</div>
+      </div>
+    </div>
+
+    <nav class="dq-tabs" role="tablist" aria-label="Spielmodi">
+      <button class="dq-tab active" data-tab="campaign" title="Alt+1">
+        <span>🗺️</span> Kampagne
+      </button>
+      <button class="dq-tab" data-tab="meteor" title="Alt+2">
+        <span>☄️</span> Meteor-Abwehr
+      </button>
+      <button class="dq-tab" data-tab="sprint" title="Alt+3">
+        <span>⚡</span> 60s-Sprint
+      </button>
+      <button class="dq-tab" data-tab="radar" title="Alt+4">
+        <span>🧭</span> Tasten-Radar
+      </button>
+    </nav>
+
+    <div class="dq-stats-bar">
+      <div class="dq-stat-pill" title="Gesammelte Sterne">
+        <span>⭐</span> <strong id="total-stars">0</strong><span class="dq-muted">/96</span>
+      </div>
+      <div class="dq-stat-pill" title="Erfahrungspunkte">
+        <span>✨</span> <strong id="total-xp">0</strong> <span class="dq-muted">XP</span>
+      </div>
+      <button
+        class="dq-icon-btn"
+        id="emulate-toggle"
+        title="Schalte um: Ist dein System bereits auf Deutsch-Dvorak gestellt, oder soll DvorakQuest deine physische QWERTZ-Tastatur live nach Dvorak übersetzen?"
+      >
+        ⌨️ <span id="emulate-label">OS = Dvorak</span>
+      </button>
+      <button
+        class="dq-icon-btn"
+        id="qwertz-hint-toggle"
+        title="Rote QWERTZ-Positionsgravur zur Orientierung ein-/ausblenden"
+      >
+        🔴 QWERTZ-Hilfe
+      </button>
+      <button class="dq-icon-btn" id="sound-toggle" title="Sound ein-/ausschalten">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <main class="dq-main">
+    <!-- ==================== TAB 1: CAMPAIGN ==================== -->
+    <section id="view-campaign" class="dq-view active">
+      <aside class="dq-sidebar" id="world-sidebar"></aside>
+
+      <div class="dq-stage">
+        <div class="dq-mission-card">
+          <div class="dq-mission-top">
+            <div>
+              <span class="dq-world-badge" id="lvl-world-badge">Welt 1 · 1-1</span>
+              <h1 class="dq-lvl-title" id="lvl-title">Die vier stärksten Finger</h1>
+            </div>
+            <div class="dq-metrics-row">
+              <div class="dq-metric-box">
+                <span class="dq-metric-label">Tempo</span>
+                <strong id="live-wpm">0 WPM</strong>
+              </div>
+              <div class="dq-metric-box">
+                <span class="dq-metric-label">Genauigkeit</span>
+                <strong id="live-acc">100%</strong>
+              </div>
+              <div class="dq-metric-box">
+                <span class="dq-metric-label">Gold-Ziel</span>
+                <strong id="lvl-target-wpm">≥ 22 WPM</strong>
+              </div>
+            </div>
+          </div>
+
+          <p class="dq-tip" id="lvl-tip"></p>
+          <div class="dq-newkeys-row" id="lvl-newkeys"></div>
+        </div>
+
+        <!-- Typing Stream Box -->
+        <div class="dq-typing-card" id="typing-card">
+          <div class="dq-typing-header">
+            <div class="dq-finger-coach" id="finger-coach">
+              Drücke die hervorgehobene Taste, um zu beginnen!
+            </div>
+            <button class="dq-btn-sm" id="btn-restart" title="Neu starten (Alt+R oder Esc)">
+              🔄 Neustart (`Esc`)
+            </button>
+          </div>
+
+          <div class="dq-text-stream" id="text-stream"></div>
+
+          <div class="dq-progress-track">
+            <div class="dq-progress-fill" id="lvl-progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Interactive German Dvorak Type I Keyboard + 10-Finger Legend -->
+        <div class="dq-keyboard-card">
+          <div id="main-keyboard" class="dq-keyboard"></div>
+          <div class="dq-hands-bar" id="main-hands-bar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: METEOR-ABWEHR (ARCADE) ==================== -->
+    <section id="view-meteor" class="dq-view">
+      <div class="dq-centered-stage">
+        <div class="dq-arcade-topbar">
+          <div>
+            <h2>☄️ Meteor-Abwehr über Dvorakia</h2>
+            <p class="dq-muted">Tippe die herabstürzenden Wörter, um Laser abzufeuern, bevor sie den Schild erreichen!</p>
+          </div>
+          <div class="dq-arcade-controls">
+            <select id="meteor-pool-select" class="dq-select" aria-label="Wort-Pool">
+              <option value="home">Stufe 1: Nur Grundreihe (A O E I U H D R N S L)</option>
+              <option value="umlauts">Stufe 2: Fokus auf Ä, Ö, Ü &amp; ß</option>
+              <option value="all" selected>Stufe 3: Alle deutschen Wörter</option>
+              <option value="code">Stufe 4: Code, Klammern &amp; Vim</option>
+            </select>
+            <button class="dq-btn-primary" id="btn-meteor-start">🚀 Abwehr starten</button>
+          </div>
+        </div>
+
+        <div class="dq-arcade-hud">
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">🛡️ Schild</span>
+            <strong id="meteor-lives">❤️❤️❤️❤️❤️</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">🏆 Punkte</span>
+            <strong id="meteor-score">0</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">🌊 Welle</span>
+            <strong id="meteor-wave">1</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">👑 Rekord</span>
+            <strong id="meteor-best">0</strong>
+          </div>
+        </div>
+
+        <div class="dq-meteor-arena" id="meteor-arena">
+          <canvas id="meteor-canvas" width="920" height="360"></canvas>
+          <div class="dq-meteor-overlay" id="meteor-overlay">
+            <h3>Bereit zur Verteidigung?</h3>
+            <p>Wähle oben deine Stufe und klicke auf „Abwehr starten“ (oder drücke <code>Enter</code>)!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: 60s SPRINT & HEATMAP ==================== -->
+    <section id="view-sprint" class="dq-view">
+      <div class="dq-centered-stage">
+        <div class="dq-arcade-topbar">
+          <div>
+            <h2>⚡ 60-Sekunden-Sprint &amp; Fehler-Heatmap</h2>
+            <p class="dq-muted">Miss deine reine Schreibgeschwindigkeit (WPM &amp; Anschläge/Min) und erkenne auf der Tastatur-Heatmap deine unsicheren Tasten.</p>
+          </div>
+          <div class="dq-arcade-controls">
+            <button class="dq-btn-primary" id="btn-sprint-reset">🔄 Neuer Text / Start</button>
+          </div>
+        </div>
+
+        <div class="dq-arcade-hud">
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">⏱️ Verbleibend</span>
+            <strong id="sprint-timer">60.0s</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">⚡ Tempo</span>
+            <strong id="sprint-wpm">0 WPM</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">🎯 Genauigkeit</span>
+            <strong id="sprint-acc">100%</strong>
+          </div>
+          <div class="dq-hud-box">
+            <span class="dq-hud-label">👑 Bestwert</span>
+            <strong id="sprint-best">0 WPM</strong>
+          </div>
+        </div>
+
+        <div class="dq-typing-card">
+          <div class="dq-text-stream" id="sprint-stream"></div>
+        </div>
+
+        <div class="dq-keyboard-card">
+          <div class="dq-heatmap-caption">🔥 Live-Tastatur &amp; Fehler-Heatmap (rötlich = hier hast du dich vertippt):</div>
+          <div id="sprint-keyboard" class="dq-keyboard"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: TASTEN-RADAR & ENTDECKER ==================== -->
+    <section id="view-radar" class="dq-view">
+      <div class="dq-centered-stage">
+        <div class="dq-radar-card">
+          <div class="dq-radar-stats">
+            <span>🔥 Serie: <strong id="radar-streak">0</strong></span>
+            <span>⚡ Reaktionszeit: <strong id="radar-speed">–</strong></span>
+          </div>
+          <div class="dq-radar-label">Blind-Reflex-Training: Tippe das gesuchte Zeichen!</div>
+          <div class="dq-radar-target" id="radar-target">Ä</div>
+          <div class="dq-radar-hint" id="radar-hint">Linker kleiner Finger · Taste &lt; neben Links-Shift + Rechts-Shift</div>
+        </div>
+
+        <div class="dq-keyboard-card">
+          <div id="radar-keyboard" class="dq-keyboard"></div>
+          <div class="dq-hands-bar" id="radar-hands-bar"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VICTORY MODAL -->
+  <div class="dq-modal-backdrop hidden" id="victory-modal" role="dialog" aria-modal="true">
+    <div class="dq-modal">
+      <div class="dq-modal-stars" id="modal-stars">⭐⭐⭐</div>
+      <h2 id="modal-title">Lektion gemeistert!</h2>
+      <p class="dq-modal-sub" id="modal-stats">28 WPM · 99% Genauigkeit</p>
+      <div class="dq-modal-xp" id="modal-xp">+150 XP</div>
+      <div class="dq-modal-buttons">
+        <button class="dq-btn-secondary" id="modal-retry">🔄 Nochmal (`r`)</button>
+        <button class="dq-btn-primary" id="modal-next">Weiter (`Enter`) →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/dvorak-layout.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+
